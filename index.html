@@ -3,454 +3,225 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>네 개의 화면 — p5.js 제너러티브 전시</title>
-  <meta name="description" content="정적과 동적, 추상과 자화상. p5.js로 그린 네 점의 작품을 한 화면에 모은 작은 전시." />
+  <title>네 개의 화면 — p5.js 작품</title>
+  <meta name="description" content="정적과 동적, 추상과 자화상. p5.js로 그린 네 작품 모음." />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..600&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
 
   <style>
     :root {
-      --ink:      #0c0b0f;
-      --ink-2:    #131119;
-      --panel:    #17151d;
-      --mat:      #1d1b24;
-      --line:     #2c2935;
-      --gold:     #c9a24b;
-      --gold-hi:  #ecce8a;
-      --crimson:  #c0504a;
-      --teal:     #43a0a4;
-      --bone:     #f0ebe0;
-      --muted:    #9b948a;
-      --muted-2:  #6f6a63;
-      --display: "Fraunces", "Gowun Batang", serif;
-      --serif:   "Gowun Batang", "Fraunces", serif;
-      --mono:    "IBM Plex Mono", ui-monospace, monospace;
+      --bg:     #f3f1ec;
+      --card:   #ffffff;
+      --ink:    #25221f;
+      --sub:    #726c64;
+      --line:   #e6e1d8;
+      --accent: #c75b3e;
+      --slate:  #56707d;
+      --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+              system-ui, "Segoe UI", Roboto, sans-serif;
     }
 
     * { box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
-
     body {
       margin: 0;
-      background: var(--ink);
-      color: var(--bone);
-      font-family: var(--serif);
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* ── atmospheric layers ───────────────────────────── */
-    .atmos {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
-    .atmos::before { /* warm vignette glow, echoing the gold/crimson palette */
-      content: "";
-      position: absolute;
-      inset: -20%;
-      background:
-        radial-gradient(60% 50% at 18% 12%, rgba(67,160,164,0.10), transparent 60%),
-        radial-gradient(55% 45% at 85% 22%, rgba(192,80,74,0.10), transparent 60%),
-        radial-gradient(70% 60% at 50% 100%, rgba(201,162,75,0.12), transparent 65%);
-    }
-    .atmos::after { /* film grain */
-      content: "";
-      position: absolute;
-      inset: 0;
-      opacity: 0.05;
-      mix-blend-mode: overlay;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-    /* faint vertical light shaft */
-    .atmos .shaft {
-      position: absolute;
-      top: -10%;
-      left: 50%;
-      width: 1px;
-      height: 120%;
-      background: linear-gradient(var(--line), transparent);
-      opacity: 0.4;
     }
 
     .wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 1200px;
+      max-width: 1080px;
       margin: 0 auto;
-      padding: clamp(2rem, 5vw, 5rem) clamp(1.1rem, 4vw, 3rem) 4rem;
+      padding: clamp(2.2rem, 6vw, 4.5rem) clamp(1.1rem, 4vw, 2.5rem) 4rem;
     }
 
-    /* ── masthead ─────────────────────────────────────── */
-    header { text-align: center; margin-bottom: clamp(2.4rem, 5vw, 4rem); }
-
-    .kicker {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.42em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin: 0 0 1.4rem;
-      opacity: 0;
-      animation: rise 0.9s 0.05s ease-out forwards;
-    }
-    .kicker .dot { color: var(--muted-2); margin: 0 0.55em; }
-
+    /* header */
+    header { margin-bottom: clamp(2rem, 5vw, 3.2rem); }
     h1 {
-      font-family: var(--display);
-      font-weight: 360;
-      font-size: clamp(2.7rem, 8vw, 5.6rem);
-      line-height: 0.98;
-      letter-spacing: -0.015em;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 0 0 0.6rem;
+    }
+    header p {
       margin: 0;
-      color: var(--bone);
-      opacity: 0;
-      animation: rise 1s 0.18s ease-out forwards;
+      color: var(--sub);
+      font-size: clamp(0.98rem, 2.2vw, 1.12rem);
     }
-    h1 em {
-      font-style: italic;
-      font-weight: 340;
-      background: linear-gradient(100deg, var(--gold-hi), var(--gold) 55%, var(--crimson));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+    .divider {
+      height: 3px;
+      width: 44px;
+      background: var(--accent);
+      border-radius: 99px;
+      margin-top: 1.3rem;
     }
 
-    .lede {
-      max-width: 40ch;
-      margin: 1.5rem auto 0;
-      color: var(--muted);
-      font-size: clamp(0.98rem, 2vw, 1.12rem);
-      opacity: 0;
-      animation: rise 1s 0.34s ease-out forwards;
-    }
-
-    .rule {
-      width: 0;
-      height: 1px;
-      margin: 2.2rem auto 0;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      animation: spread 1.2s 0.5s ease-out forwards;
-    }
-
-    /* ── gallery grid ─────────────────────────────────── */
+    /* grid */
     .gallery {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: clamp(1.4rem, 3.5vw, 3rem);
+      gap: clamp(1.1rem, 3vw, 2rem);
     }
 
-    figure.plate {
-      margin: 0;
-      opacity: 0;
-      transform: translateY(26px);
-      animation: rise 0.9s ease-out forwards;
-    }
-    figure.plate:nth-child(1) { animation-delay: 0.55s; }
-    figure.plate:nth-child(2) { animation-delay: 0.68s; }
-    figure.plate:nth-child(3) { animation-delay: 0.81s; }
-    figure.plate:nth-child(4) { animation-delay: 0.94s; }
-
-    /* the frame + mat holding each canvas */
-    .frame {
-      position: relative;
-      padding: clamp(0.5rem, 1.4vw, 1rem);
-      background: linear-gradient(160deg, var(--mat), var(--ink-2));
+    .card {
+      background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 3px;
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.03) inset,
-        0 30px 55px -30px rgba(0,0,0,0.9),
-        0 8px 22px -12px rgba(0,0,0,0.7);
-      transition: transform 0.45s cubic-bezier(.2,.7,.2,1), box-shadow 0.45s;
+      border-radius: 16px;
+      padding: clamp(0.7rem, 1.6vw, 1rem);
+      box-shadow: 0 1px 2px rgba(40,35,30,0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: rise 0.6s ease-out forwards;
     }
-    figure.plate:hover .frame {
-      transform: translateY(-6px);
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.05) inset,
-        0 42px 70px -32px rgba(0,0,0,0.95),
-        0 0 0 1px var(--gold-hi);
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.13s; }
+    .card:nth-child(3) { animation-delay: 0.21s; }
+    .card:nth-child(4) { animation-delay: 0.29s; }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 30px -16px rgba(40,35,30,0.28);
     }
 
-    /* the artwork window */
-    .screen {
+    .art {
       position: relative;
       width: 100%;
       aspect-ratio: 3 / 2;
       overflow: hidden;
-      background: #000;
-      border: 1px solid rgba(201,162,75,0.35);
-      border-radius: 2px;
+      border-radius: 10px;
+      background: #111;
     }
-    .screen iframe {
+    .art iframe {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 600px;
       height: 400px;
       border: 0;
       transform-origin: top left;
     }
-    /* hairline corner ticks, like a passe-partout */
-    .screen::before, .screen::after {
-      content: "";
-      position: absolute;
-      width: 14px; height: 14px;
-      border: 1px solid var(--gold);
-      opacity: 0.5;
-      z-index: 2;
-      pointer-events: none;
-    }
-    .screen::before { top: 6px; left: 6px; border-right: 0; border-bottom: 0; }
-    .screen::after  { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
 
-    /* museum placard */
-    figcaption {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: baseline;
-      gap: 0.4rem 0.9rem;
-      margin-top: 1.05rem;
-      padding-top: 0.9rem;
-      border-top: 1px solid var(--line);
+    .label { padding: 0.95rem 0.45rem 0.35rem; }
+    .meta { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.35rem; }
+    .num { font-size: 0.85rem; font-weight: 700; color: var(--sub); }
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.18em 0.6em;
+      border-radius: 99px;
+      color: #fff;
     }
-    .plate-no {
-      grid-row: 1;
-      grid-column: 1;
-      font-family: var(--mono);
-      font-size: 0.74rem;
-      letter-spacing: 0.12em;
-      color: var(--gold);
-    }
-    .tag {
-      grid-row: 1;
-      grid-column: 3;
-      justify-self: end;
-      font-family: var(--mono);
-      font-size: 0.64rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      padding: 0.25em 0.7em;
-      border-radius: 999px;
-      border: 1px solid currentColor;
-      white-space: nowrap;
-    }
-    .tag.static  { color: var(--teal); }
-    .tag.motion  { color: var(--crimson); }
-    .titles {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: baseline;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      margin-top: 0.2rem;
-    }
-    .titles .ko {
-      font-family: var(--display);
-      font-size: clamp(1.25rem, 3vw, 1.6rem);
-      font-weight: 420;
+    .badge.static { background: var(--slate); }
+    .badge.motion { background: var(--accent); }
+    .label h2 {
+      font-size: 1.18rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
       letter-spacing: -0.01em;
     }
-    .titles .en {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted-2);
+    .label p { margin: 0; color: var(--sub); font-size: 0.92rem; }
+    .keys {
+      margin-top: 0.55rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      font-weight: 600;
     }
-    .desc {
-      grid-column: 1 / -1;
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin: 0.15rem 0 0;
-    }
-    .desc em { font-style: normal; color: var(--gold-hi); }
-    .hint {
-      grid-column: 1 / -1;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--gold);
-      margin-top: 0.5rem;
-      opacity: 0.9;
-    }
-    .hint kbd {
-      font-family: var(--mono);
+    .keys kbd {
+      font-family: inherit;
+      font-weight: 700;
+      background: #f1ede5;
       border: 1px solid var(--line);
-      border-bottom-width: 2px;
-      border-radius: 4px;
-      padding: 0.05em 0.45em;
-      color: var(--bone);
-      background: var(--ink-2);
-      margin: 0 0.12em;
+      border-radius: 5px;
+      padding: 0.04em 0.42em;
+      color: var(--ink);
+      margin: 0 0.06em;
     }
 
-    /* ── colophon ─────────────────────────────────────── */
-    .colophon {
-      margin-top: clamp(3rem, 7vw, 5.5rem);
-      padding-top: 2rem;
-      border-top: 1px solid var(--line);
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
-    }
-    .colophon h2 {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin: 0 0 0.9rem;
-      font-weight: 500;
-    }
-    .colophon p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-    .colophon .stack { font-family: var(--mono); font-size: 0.82rem; color: var(--bone); line-height: 1.9; }
-    .colophon .stack span { color: var(--gold); }
-
-    footer {
-      margin-top: 3rem;
-      text-align: center;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      letter-spacing: 0.14em;
-      color: var(--muted-2);
-    }
-    footer a { color: var(--gold); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .3s; }
-    footer a:hover { border-color: var(--gold); }
-
-    /* ── motion keyframes ─────────────────────────────── */
     @keyframes rise { to { opacity: 1; transform: translateY(0); } }
-    @keyframes spread { to { width: min(420px, 70%); } }
 
-    @media (max-width: 760px) {
+    @media (max-width: 720px) {
       .gallery { grid-template-columns: 1fr; }
     }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-      .kicker, h1, .lede, figure.plate { opacity: 1; transform: none; }
-      .rule { width: min(420px, 70%); }
+      .card { animation: none; opacity: 1; transform: none; }
+      .card:hover { transform: none; }
     }
   </style>
 </head>
 
 <body>
-  <div class="atmos"><div class="shaft"></div></div>
-
   <main class="wrap">
     <header>
-      <p class="kicker">p5.js<span class="dot">·</span>generative gallery<span class="dot">·</span>2024</p>
-      <h1>네 개의 <em>화면</em></h1>
-      <p class="lede">
-        정지한 빛과 움직이는 빛, 추상과 자화상.
-        과제 1–4의 네 작품을 한 자리에 건 작은 전시입니다.
-      </p>
-      <div class="rule"></div>
+      <h1>네 개의 화면</h1>
+      <p>정적과 동적, 추상과 자화상 — p5.js로 그린 네 작품입니다.</p>
+      <div class="divider"></div>
     </header>
 
-    <section class="gallery" aria-label="작품 2행 2열 전시">
+    <section class="gallery">
 
-      <!-- ROW 1 · LEFT : 과제 1 (정적 추상화) -->
-      <figure class="plate">
-        <div class="frame">
-          <div class="screen"><iframe src="abstract_art/index.html" title="과제 1 · 정적 추상화" loading="eager" scrolling="no"></iframe></div>
+      <!-- 1행 좌: 과제 1 (정적 추상화) -->
+      <article class="card">
+        <div class="art"><iframe src="abstract_art/index.html" title="과제 1 정적 추상화" scrolling="no"></iframe></div>
+        <div class="label">
+          <div class="meta"><span class="num">과제 1</span><span class="badge static">정적</span></div>
+          <h2>기하 추상화</h2>
+          <p>삼각형·원·사각형의 균형과 여백으로 구성한 정적 추상화.</p>
         </div>
-        <figcaption>
-          <span class="plate-no">No. 01</span>
-          <span class="tag static">Static · 정적</span>
-          <div class="titles"><span class="ko">기하의 균형</span><span class="en">Abstract Composition</span></div>
-          <p class="desc">삼각형·원·사각형의 무게와 여백으로 긴장을 잡은, 한 장면으로 완성한 정적 추상화.</p>
-        </figcaption>
-      </figure>
+      </article>
 
-      <!-- ROW 1 · RIGHT : 과제 4 (동적 추상화) -->
-      <figure class="plate">
-        <div class="frame">
-          <div class="screen"><iframe src="assignment2/index.html" title="과제 4 · 동적 추상화" loading="eager" scrolling="no"></iframe></div>
+      <!-- 1행 우: 과제 4 (동적 추상화) -->
+      <article class="card">
+        <div class="art"><iframe src="assignment2/index.html" title="과제 4 동적 추상화" scrolling="no"></iframe></div>
+        <div class="label">
+          <div class="meta"><span class="num">과제 4</span><span class="badge motion">동적</span></div>
+          <h2>움직이는 추상화</h2>
+          <p>과제 1의 구성에 색과 크기 변화를 더해 천천히 움직이게 했습니다.</p>
+          <p class="keys"><kbd>G</kbd> 키로 GIF 저장</p>
         </div>
-        <figcaption>
-          <span class="plate-no">No. 04</span>
-          <span class="tag motion">Motion · 동적</span>
-          <div class="titles"><span class="ko">숨 쉬는 기하</span><span class="en">Abstract in Motion</span></div>
-          <p class="desc">과제 1의 구성을 <em>lerpColor</em>·사인 파동으로 호흡시켜, 색과 크기가 천천히 살아 움직인다.</p>
-          <p class="hint"><kbd>G</kbd> 키를 누르면 6초 GIF로 기록됩니다.</p>
-        </figcaption>
-      </figure>
+      </article>
 
-      <!-- ROW 2 · LEFT : 과제 2 (정적 자화상) -->
-      <figure class="plate">
-        <div class="frame">
-          <div class="screen"><iframe src="caricature_portrait/index.html" title="과제 2 · 정적 자화상" loading="eager" scrolling="no"></iframe></div>
+      <!-- 2행 좌: 과제 2 (정적 자화상) -->
+      <article class="card">
+        <div class="art"><iframe src="caricature_portrait/index.html" title="과제 2 정적 자화상" scrolling="no"></iframe></div>
+        <div class="label">
+          <div class="meta"><span class="num">과제 2</span><span class="badge static">정적</span></div>
+          <h2>캐리커처 자화상</h2>
+          <p>도형만으로 이목구비를 단순화해 그린 자화상.</p>
         </div>
-        <figcaption>
-          <span class="plate-no">No. 02</span>
-          <span class="tag static">Static · 정적</span>
-          <div class="titles"><span class="ko">자화상</span><span class="en">Self-Caricature</span></div>
-          <p class="desc">곡선과 도형만으로 이목구비를 단순화한 캐리커처 자화상. 정지된 한 컷의 초상.</p>
-        </figcaption>
-      </figure>
+      </article>
 
-      <!-- ROW 2 · RIGHT : 과제 3 (동적 자화상) -->
-      <figure class="plate">
-        <div class="frame">
-          <div class="screen"><iframe src="assignment3/index.html" title="과제 3 · 동적 자화상" loading="eager" scrolling="no"></iframe></div>
+      <!-- 2행 우: 과제 3 (동적 자화상) -->
+      <article class="card">
+        <div class="art"><iframe src="assignment3/index.html" title="과제 3 동적 자화상" scrolling="no"></iframe></div>
+        <div class="label">
+          <div class="meta"><span class="num">과제 3</span><span class="badge motion">동적</span></div>
+          <h2>움직이는 자화상</h2>
+          <p>마우스와 키 입력에 따라 표정과 색이 바뀌는 자화상.</p>
+          <p class="keys">클릭 후 <kbd>H</kbd> 미소 <kbd>B</kbd> 깜빡 <kbd>C</kbd> 옷색 <kbd>←</kbd><kbd>→</kbd> 배경</p>
         </div>
-        <figcaption>
-          <span class="plate-no">No. 03</span>
-          <span class="tag motion">Motion · 동적</span>
-          <div class="titles"><span class="ko">살아있는 자화상</span><span class="en">Living Caricature</span></div>
-          <p class="desc">마우스와 키 입력에 따라 시선·표정·옷 색이 바뀌는 인터랙티브 초상.</p>
-          <p class="hint">클릭 후 <kbd>H</kbd> 미소 <kbd>B</kbd> 깜빡임 <kbd>C</kbd> 옷색 <kbd>←</kbd><kbd>→</kbd> 배경</p>
-        </figcaption>
-      </figure>
+      </article>
 
     </section>
-
-    <section class="colophon">
-      <div>
-        <h2>코멘트</h2>
-        <p>같은 손에서 나온 정적·동적 작업을 나란히 걸어, 한 컷이 어떻게 시간으로 풀리는지 비교해 보고자 했습니다. 네 작품 모두 접속 즉시 2행 2열 액자 안에서 바로 재생됩니다.</p>
-      </div>
-      <div>
-        <h2>핵심 기술</h2>
-        <p class="stack">
-          <span>HTML</span> · figure/figcaption, iframe 임베드<br />
-          <span>CSS</span> · Grid 2×2, aspect-ratio, 골드 라인 액자, 그레인·비네트, staggered 등장<br />
-          <span>JS</span> · p5.js 드로잉 · ResizeObserver 반응형 스케일링
-        </p>
-      </div>
-      <div>
-        <h2>AI 활용</h2>
-        <p>전시 페이지의 미학 방향(다크 갤러리 컨셉·타이포·반응형 임베드)을 다듬는 데 AI를 협업 도구로 사용했습니다. 작품 4점의 드로잉 로직은 직접 작성했습니다.</p>
-      </div>
-    </section>
-
-    <footer>
-      MADE WITH p5.js &nbsp;·&nbsp; <a href="https://github.com/godekd3133" target="_blank" rel="noopener">@godekd3133</a>
-    </footer>
   </main>
 
   <script>
-    // 캔버스는 600×400 고정. 액자 폭에 맞춰 iframe 전체를 스케일링한다.
-    const fit = (screen) => {
-      const iframe = screen.querySelector('iframe');
-      if (!iframe) return;
-      const scale = screen.clientWidth / 600;
-      iframe.style.transform = `scale(${scale})`;
+    // 캔버스는 600×400 고정 — 카드 폭에 맞춰 iframe을 축소한다.
+    const fit = (art) => {
+      const f = art.querySelector('iframe');
+      if (f) f.style.transform = `scale(${art.clientWidth / 600})`;
     };
-    const screens = document.querySelectorAll('.screen');
+    const arts = document.querySelectorAll('.art');
     if ('ResizeObserver' in window) {
-      const ro = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target)));
-      screens.forEach((s) => ro.observe(s));
+      const ro = new ResizeObserver((es) => es.forEach((e) => fit(e.target)));
+      arts.forEach((a) => ro.observe(a));
     } else {
-      const fitAll = () => screens.forEach(fit);
-      window.addEventListener('resize', fitAll);
-      fitAll();
+      const all = () => arts.forEach(fit);
+      addEventListener('resize', all); all();
     }
-    requestAnimationFrame(() => screens.forEach(fit));
+    requestAnimationFrame(() => arts.forEach(fit));
   </script>
 </body>
 </html>
