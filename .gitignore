@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Test artifacts
+.playwright-mcp/
+*.tmp
+
+# Claude / VS Code AI rules
+.claude/
+.github/instructions/codacy.instructions.md
