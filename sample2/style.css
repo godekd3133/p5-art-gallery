@@ -1,0 +1,8 @@
+html, body { margin: 0; padding: 0; overflow: hidden; }
+body {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  background: #e7eef5;
+}
+canvas { display: block; }
